@@ -32,10 +32,19 @@ export const MainMenu = () => {
         }
     }, [menuItemArray]);
 
+    const setMenuItemOpacityToFull = () => {
+        const menuItems:HTMLCollectionOf<HTMLElement> = document.getElementsByClassName('mainMenuItem') as HTMLCollectionOf<HTMLElement>;
+        Object.values(menuItems).forEach((menuItem, index) => {
+            setTimeout(() => {
+                menuItem.style.opacity = '1';
+            }, index * 25)
+        })
+    }
+
     useEffect(() => {
         const handleResize = () => {
-            const { innerWidth: width, innerHeight: height } = window;
-            setWindowDimensions({innerWidth: width, innerHeight: height});
+            const { innerWidth, innerHeight } = window;
+            setWindowDimensions({innerWidth: innerWidth, innerHeight: innerHeight});
         }
     
         handleResize();
@@ -43,6 +52,17 @@ export const MainMenu = () => {
         return () => {
             window.removeEventListener('resize', handleResize)
         };
+    }, []);
+    
+    useEffect(() => {
+        let countDown = 0;
+        const countTimeTimeout = setInterval(() => {
+            countDown = countDown + 10;
+            setMenuLineWidth(countDown);
+            if ( countDown >= 120 ) {
+                clearTimeout(countTimeTimeout);
+            }
+        }, 100);
     }, []);
 
     useEffect(() => {
@@ -85,7 +105,7 @@ export const MainMenu = () => {
                 },
             ]
     
-            const menuItemArray:JSX.Element[] = menuItemLinks.map(( menuItemLink:{
+            const menuItemMappedArray:JSX.Element[] = menuItemLinks.map(( menuItemLink:{
                 name: string },
                 index: number
             ) => {
@@ -104,23 +124,13 @@ export const MainMenu = () => {
                 </MainMenuItem>
             })
     
-            const menuItemArrayFinal = ([<MainMenuBackgroundStyled key={'bg1'} menuLineWidth={menuLineWidthRef.current} />]).concat(menuItemArray)
-            setMenuItemArray(menuItemArrayFinal);
+            setMenuItemArray(menuItemMappedArray);
         };
 
         if (windowDimensions?.innerHeight && windowDimensions?.innerWidth) {
             createMenuItemsArray(windowDimensions?.innerHeight, windowDimensions?.innerWidth);
         }
-    }, [windowDimensions, menuItemArray])
-
-    const setMenuItemOpacityToFull = () => {
-        const menuItems:HTMLCollectionOf<HTMLElement> = document.getElementsByClassName('mainMenuItem') as HTMLCollectionOf<HTMLElement>;
-        Object.values(menuItems).forEach((menuItem, index) => {
-            setTimeout(() => {
-                menuItem.style.opacity = '1';
-            }, index * 25)
-        })
-    }
+    }, [windowDimensions])
 
     useEffect(() => {
         menuLineWidthRef.current = menuLineWidth;
@@ -132,19 +142,11 @@ export const MainMenu = () => {
         }
     }, [menuLineWidth, standardMenuItemWidth, currentDisplay]);
 
-    useEffect(() => {
-        let countDown = 0;
-        const countTimeTimeout = setInterval(() => {
-            countDown = countDown + 10;
-            setMenuLineWidth(countDown);
-            if ( countDown >= 120 ) {
-                clearTimeout(countTimeTimeout);
-            }
-        }, 100);
-    }, []);
+
 
     return (
         <MainMenuStyled>
+            <MainMenuBackgroundStyled key={'bg1'} menuLineWidth={menuLineWidth} />
             {menuItemArray}
         </MainMenuStyled>
     )
